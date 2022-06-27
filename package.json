@@ -1,0 +1,26 @@
+{
+  "name": "social-network-api",
+  "version": "1.0.0",
+  "description": "An API for a social media app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AtlantaBlack/Social_Network_API.git"
+  },
+  "keywords": [
+    "social",
+    "network",
+    "API",
+    "mongoDB",
+    "mongoose"
+  ],
+  "author": "Sushan Yue",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AtlantaBlack/Social_Network_API/issues"
+  },
+  "homepage": "https://github.com/AtlantaBlack/Social_Network_API#readme"
+}
