@@ -5,13 +5,13 @@ const userSchema = new Schema(
 	{
 		username: {
 			type: String,
-			required: [true, "Username is required"], // custom err msg
+			required: [true, "Username is required."], // custom err msg
 			trim: true,
 			unique: true
 		},
 		email: {
 			type: String,
-			required: [true, "Email address is required"], // custom err msg
+			required: [true, "Email address is required."], // custom err msg
 			trim: true,
 			unique: true,
 			lowercase: true,
@@ -21,7 +21,7 @@ const userSchema = new Schema(
 				validator: function (v) {
 					return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
 				},
-				message: (props) => `${props.value} is not a valid email` // custom err msg
+				message: (props) => `${props.value} is not a valid email.` // custom err msg
 			}
 		},
 		thoughts: [{ type: Schema.Types.ObjectId, ref: "Thought" }],
