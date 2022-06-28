@@ -2,6 +2,8 @@ const { ObjectId } = require("mongoose").Types;
 const { User, Thought } = require("../models");
 const searchForUser = require("../utils/userSearch");
 
+// ==== USER: general ====
+
 // GET: find all the users
 const getAllUsers = async (req, res) => {
 	try {
@@ -160,10 +162,61 @@ const deleteUser = async (req, res) => {
 	}
 };
 
+// ==== USER: friends ====
+
+// POST: add a friend
+const addFriend = async (req, res) => {
+	try {
+		const userId = req.params.userId; // get user ID
+		const friendId = req.params.friendId; // get friend ID
+
+		// check if user exists
+		const doesUserExist = await searchForUser({ _id: userId });
+		// check if friend exists
+		const doesFriendExist = await searchForUser({ _id: friendId });
+
+		if (!doesUserExist) {
+			res.status(400).json({
+				message: "The user you're trying to add a friend to doesn't exist!"
+			});
+			return;
+		} else if (!doesFriendExist) {
+			res.status(400).json({
+				message: "The user being added as a friend doesn't exist!"
+			});
+			return;
+		}
+
+		// update the user by adding the friend to their friends list (array)
+		const userWithNewFriend = await User.findOneAndUpdate(
+			{ _id: userId }, // grab user id
+			{ $addToSet: { friends: friendId } }, // add friend to 'friends' field of the user
+			{ runValidators: true, new: true }
+		)
+			.populate({ path: "friends", select: "-__v" }) // show the friends
+			.select("-__v");
+
+		// update the friend with the user's id added to the friend's friend list
+		await User.findOneAndUpdate(
+			{ _id: friendId }, // get friend id
+			{ $addToSet: { friends: userId } }, // add user to the friend's 'friend' field
+			{ runValidators: true, new: true }
+		);
+
+		// if successful, send the user's data
+		res.status(200).json(userWithNewFriend);
+	} catch (error) {
+		console.log("\n---USER CTRL: ADD FRIEND ERR");
+		console.log(error);
+		res.status(500).json({ message: "Something went wrong!" });
+	}
+};
+
 module.exports = {
 	getAllUsers,
 	getUserById,
 	createUser,
 	updateUser,
-	deleteUser
+	deleteUser,
+	addFriend
 };
