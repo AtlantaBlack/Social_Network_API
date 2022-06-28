@@ -1,5 +1,6 @@
 const { ObjectId } = require("mongoose").Types;
 const { User, Thought } = require("../models");
+const searchForUser = require("../utils/userSearch");
 
 // GET: find all the users
 const getAllUsers = async (req, res) => {
@@ -69,7 +70,7 @@ const createUser = async (req, res) => {
 		}
 
 		// check to see if the incoming email is already in use
-		const doesUserExist = await User.exists({ email });
+		const doesUserExist = await searchForUser({ email });
 
 		// if so, then send an error message
 		if (doesUserExist) {
@@ -98,7 +99,7 @@ const updateUser = async (req, res) => {
 		const body = req.body; // get the body content
 
 		// run a check to see if specified user actually exists
-		const doesUserExist = await User.findOne({ _id: ObjectId(userId) });
+		const doesUserExist = await searchForUser({ _id: ObjectId(userId) });
 
 		// if not, send an error message
 		if (!doesUserExist) {
@@ -108,16 +109,34 @@ const updateUser = async (req, res) => {
 			return;
 		}
 
+		// if user exists, update them
 		const updatedUser = await User.findOneAndUpdate(
 			{ _id: ObjectId(userId) }, // find user with specified id
 			{ $set: body }, // update using the req.body content
 			{ runValidators: true, new: true } // run validators & save
 		);
+
+		// if successful, send json
 		res.status(200).json(updatedUser);
 	} catch (error) {
 		console.log("\n---USER CTRL: UPDATE USER ERR");
 		console.log(error);
-		res.status(500).json({ message: "Invalid ID!" });
+		res
+			.status(500)
+			.json({ message: "Something went wrong! (Invalid user ID)" });
+	}
+};
+
+// DELETE: delete a user
+const deleteUser = async (req, res) => {
+	try {
+		const userId = req.params.userId;
+	} catch (error) {
+		console.log("\n---USER CTRL: DELETE USER ERR");
+		console.log(error);
+		res
+			.status(500)
+			.json({ message: "Something went wrong! (Invalid user ID)" });
 	}
 };
 
@@ -125,5 +144,6 @@ module.exports = {
 	getAllUsers,
 	getUserById,
 	createUser,
-	updateUser
+	updateUser,
+	deleteUser
 };
