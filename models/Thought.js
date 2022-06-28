@@ -1,6 +1,15 @@
 const { Schema, model } = require("mongoose");
 const reactionSchema = require("./Reaction");
 
+// changing the date format
+const ukDateFormat = (createdAt) => {
+	let date = new Intl.DateTimeFormat("en-GB", {
+		timeStyle: "short",
+		dateStyle: "short"
+	});
+	return date.format(createdAt);
+};
+
 // thought schema
 const thoughtSchema = new Schema(
 	{
@@ -14,6 +23,15 @@ const thoughtSchema = new Schema(
 			type: Date,
 			default: () => Date.now(), // set default to current timestamp
 			get: ukDateFormat // get the date in UK date format (dd/mm/yyyy)
+
+			// get: (createdAt) => {
+			// 	return createdAt.toLocaleDateString(undefined, {
+			// 		weekday: "long",
+			// 		year: "numeric",
+			// 		month: "long",
+			// 		day: "numeric"
+			// 	});
+			// } // get the date in UK date format (dd/mm/yyyy)
 		},
 		username: {
 			type: String,
@@ -29,26 +47,6 @@ const thoughtSchema = new Schema(
 		id: false
 	}
 );
-
-// changing the date format
-const ukDateFormat = (createdAt) => {
-	let date = new Intl.DateTimeFormat("en-GB", {
-		timeStyle: "short",
-		dateStyle: "short"
-	});
-	return date.format(createdAt);
-
-	// const date = new Date(createdAt); // date string from mongodb
-
-	// const day = date.getDate();
-	// const month = date.getMonth() + 1;
-	// const year = date.getFullYear();
-
-	// const ukDate = `${day}/${month}/${year}`;
-
-	// console.log(date);
-	// return dateInUK;
-};
 
 // create virtual for reactionCount that retrieves length of thought's reactions array
 thoughtSchema.virtual("reactionCount").get(function () {

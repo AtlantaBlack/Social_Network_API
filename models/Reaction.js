@@ -1,5 +1,14 @@
 const { Schema, Types } = require("mongoose");
 
+// changing the date format
+const ukDateFormat = (createdAt) => {
+	let date = new Intl.DateTimeFormat("en-GB", {
+		timeStyle: "short",
+		dateStyle: "short"
+	});
+	return date.format(createdAt);
+};
+
 const reactionSchema = new Schema(
 	{
 		reactionId: {
@@ -19,6 +28,14 @@ const reactionSchema = new Schema(
 			type: Date,
 			default: () => Date.now(),
 			get: ukDateFormat
+			// get: (createdAt) => {
+			// 	return createdAt.toLocaleDateString(undefined, {
+			// 		weekday: "long",
+			// 		year: "numeric",
+			// 		month: "long",
+			// 		day: "numeric"
+			// 	});
+			// }
 		}
 	},
 	{
@@ -28,14 +45,5 @@ const reactionSchema = new Schema(
 		id: false
 	}
 );
-
-// changing the date format
-const ukDateFormat = (createdAt) => {
-	let date = new Intl.DateTimeFormat("en-GB", {
-		timeStyle: "short",
-		dateStyle: "short"
-	});
-	return date.format(createdAt);
-};
 
 module.exports = reactionSchema;

@@ -6,7 +6,7 @@ const connectionString =
 	process.env.MONGODB_URI || "mongodb://localhost:27017/socialMediaApiDB";
 
 connect(connectionString, {
-	useNewUrlParseer: true,
+	useNewUrlParser: true,
 	useUnifiedTopology: true
 });
 
