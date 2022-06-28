@@ -8,11 +8,13 @@ const searchForUser = require("../utils/userSearch");
 const getAllUsers = async (req, res) => {
 	try {
 		// look for all users
-		const users = await User.find();
+		const users = await User.find()
+			// don't show the __v field
+			.select("-__v");
 
 		// if there are no users, send err msg
 		if (!users) {
-			res.status(400).json({ message: "No users here" });
+			res.status(400).json({ message: "No users here..." });
 			return;
 		}
 
@@ -177,12 +179,12 @@ const addFriend = async (req, res) => {
 
 		if (!doesUserExist) {
 			res.status(400).json({
-				message: "The user you're trying to add a friend to doesn't exist!"
+				message: "The user you're trying to add a friend to doesn't exist."
 			});
 			return;
 		} else if (!doesFriendExist) {
 			res.status(400).json({
-				message: "The user being added as a friend doesn't exist!"
+				message: "The user being added as a friend doesn't exist."
 			});
 			return;
 		}
@@ -199,14 +201,63 @@ const addFriend = async (req, res) => {
 		// update the friend with the user's id added to the friend's friend list
 		await User.findOneAndUpdate(
 			{ _id: friendId }, // get friend id
-			{ $addToSet: { friends: userId } }, // add user to the friend's 'friend' field
+			{ $addToSet: { friends: userId } }, // add user to the friend's 'friends' field
 			{ runValidators: true, new: true }
 		);
 
-		// if successful, send the user's data
+		// if successful, send data of user who added friend
 		res.status(200).json(userWithNewFriend);
 	} catch (error) {
 		console.log("\n---USER CTRL: ADD FRIEND ERR");
+		console.log(error);
+		res.status(500).json({ message: "Something went wrong!" });
+	}
+};
+
+// DELETE: delete a friend from the friends list
+const removeFriend = async (req, res) => {
+	try {
+		// get the ids
+		const userId = req.params.userId;
+		const friendId = req.params.friendId;
+
+		// check if they exist
+		const doesUserExist = await searchForUser({ _id: userId });
+		const doesFriendExist = await searchForUser({ _id: friendId });
+
+		// send err messages if they don't
+		if (!doesUserExist) {
+			res.status(400).json({
+				message: "The user you're trying to add a friend to doesn't exist."
+			});
+			return;
+		} else if (!doesFriendExist) {
+			res.status(400).json({
+				message: "The user being added as a friend doesn't exist."
+			});
+			return;
+		}
+
+		// remove the friend thru updating the user's document
+		const userWithOneLessFriend = await User.findOneAndUpdate(
+			{ _id: userId },
+			{ $pull: { friends: friendId } }, // pull from friends
+			{ runValidators: true, new: true }
+		)
+			.populate({ path: "friends", select: "-__v" })
+			.select("-__v");
+
+		// remove the user from the friend's friends list
+		await User.findOneAndUpdate(
+			{ _id: friendId },
+			{ $pull: { friends: userId } }, // pull from friends
+			{ runValidators: true, new: true }
+		);
+
+		// if successful, send data of user who is one friend fewer
+		res.status(200).json(userWithOneLessFriend);
+	} catch (error) {
+		console.log("\n---USER CTRL: REMOVE FRIEND ERR");
 		console.log(error);
 		res.status(500).json({ message: "Something went wrong!" });
 	}
@@ -218,5 +269,6 @@ module.exports = {
 	createUser,
 	updateUser,
 	deleteUser,
-	addFriend
+	addFriend,
+	removeFriend
 };
