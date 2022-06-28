@@ -6,11 +6,13 @@ const getAllUsers = async (req, res) => {
 	try {
 		// look for all users
 		const users = await User.find();
+
 		// if there are no users, send err msg
 		if (!users) {
 			res.status(400).json({ message: "No users here" });
 			return;
 		}
+
 		// if successful, send the user data
 		res.status(200).json(users);
 	} catch (error) {
@@ -24,6 +26,7 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
 	try {
 		const userId = req.params.userId;
+
 		// find one user matching the id
 		const user = await User.findOne({ _id: userId })
 			// don't show the __v field
@@ -33,6 +36,7 @@ const getUserById = async (req, res) => {
 				{ path: "thoughts", select: "-__v" },
 				{ path: "friends", select: "-__v" }
 			]);
+
 		// send the json
 		res.status(200).json(user);
 	} catch (error) {
@@ -45,8 +49,16 @@ const getUserById = async (req, res) => {
 // POST: create a new user
 const createUser = async (req, res) => {
 	try {
+		/* req.body structure:
+    {
+      "username": "bob",
+      "email": "bob@email.com"
+    }
+    */
+
 		// deconstruct req.body
 		const { username, email } = req.body;
+
 		// check that both username and email have been received:
 		// if not, send error message
 		if (!username || !email) {
@@ -55,8 +67,10 @@ const createUser = async (req, res) => {
 				.json({ message: "Please include a valid username and email." });
 			return;
 		}
+
 		// check to see if the incoming email is already in use
 		const doesUserExist = await User.exists({ email });
+
 		// if so, then send an error message
 		if (doesUserExist) {
 			res.status(400).json({
@@ -64,9 +78,11 @@ const createUser = async (req, res) => {
 			});
 			return;
 		}
+
 		// else create the new user
 		const newUser = await User.create({ username, email });
-		// send the response
+
+		// if successful, send the response
 		res.status(200).json(newUser);
 	} catch (error) {
 		console.log("\n---USER CTRL: CREATE USER ERR");
