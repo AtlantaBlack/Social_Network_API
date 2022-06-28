@@ -153,6 +153,16 @@ const deleteUser = async (req, res) => {
 		// if they do, delete the user
 		const deletedUser = await User.findOneAndDelete({ _id: userId });
 
+		// then delete the user off all the friend lists the user belongs to
+		await User.updateMany(
+			// get all user ids from the deleted user's friend list
+			{ _id: { $in: deletedUser.friends } },
+			// pull the deleted user's id
+			{ $pull: { friends: userId } }
+		);
+
+		// *** DELETE THOUGHTS ****
+
 		// send success message
 		res.status(200).json({ message: "User deleted." });
 	} catch (error) {
@@ -185,6 +195,14 @@ const addFriend = async (req, res) => {
 		} else if (!doesFriendExist) {
 			res.status(400).json({
 				message: "The user being added as a friend doesn't exist."
+			});
+			return;
+		}
+
+		// disallow adding the user to their own friends list
+		if (userId === friendId) {
+			res.status(400).json({
+				message: "Unfortunately, you can't add yourself as a friend."
 			});
 			return;
 		}
@@ -234,6 +252,14 @@ const removeFriend = async (req, res) => {
 		} else if (!doesFriendExist) {
 			res.status(400).json({
 				message: "The user being added as a friend doesn't exist."
+			});
+			return;
+		}
+
+		// if user tries to delete themselves as a friend, send error message
+		if (userId === friendId) {
+			res.status(400).json({
+				message: "Please check the user IDs are correct."
 			});
 			return;
 		}
