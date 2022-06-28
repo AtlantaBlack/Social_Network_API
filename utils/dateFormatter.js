@@ -1,4 +1,4 @@
-// changing the date format to UK
+// changing the date & time formatting
 const localDateFormatter = (createdAt) => {
 	let date = new Intl.DateTimeFormat("default", {
 		year: "numeric",    // 2022

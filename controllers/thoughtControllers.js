@@ -27,6 +27,30 @@ const getAllThoughts = async (req, res) => {
 	}
 };
 
+// GET: find a single thought by its id
+const getThoughtById = async (req, res) => {
+	try {
+		const thoughtId = req.params.thoughtId; // get thought id
+		// find the thought
+		const thought = await Thought.findOne({ _id: thoughtId })
+			// don't show __v field
+			.select("-__v")
+			.populate({ path: "reactions", select: "-__v" });
+
+		// if thought doesn't exist, send err msg
+		if (!thought) {
+			res.status(400).json({ message: "No thought found with that ID." });
+			return;
+		}
+		// else send the thought data
+		res.status(200).json(thought);
+	} catch (error) {
+		console.log("\n---THOUGHTS CTRL: GET THOUGHT BY ID ERR");
+		console.log(error);
+		res.status(500).json({ message: "Something went wrong!" });
+	}
+};
+
 // POST: add a new thought
 const addThought = async (req, res) => {
 	try {
@@ -76,5 +100,6 @@ const addThought = async (req, res) => {
 
 module.exports = {
 	getAllThoughts,
+	getThoughtById,
 	addThought
 };

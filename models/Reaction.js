@@ -19,7 +19,7 @@ const reactionSchema = new Schema(
 		createdAt: {
 			type: Date,
 			default: () => Date.now(), // set to current timestamp
-			get: localDateFormatter // get the date in UK format
+			get: localDateFormatter // format date pretty
 		}
 	},
 	{

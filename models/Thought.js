@@ -14,7 +14,7 @@ const thoughtSchema = new Schema(
 		createdAt: {
 			type: Date,
 			default: () => Date.now(), // set default to current timestamp
-			get: localDateFormatter // get the date in UK date format (dd/mm/yyyy)
+			get: localDateFormatter // format date pretty
 		},
 		username: {
 			type: String,
