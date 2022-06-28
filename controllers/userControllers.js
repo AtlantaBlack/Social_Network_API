@@ -26,7 +26,7 @@ const getAllUsers = async (req, res) => {
 // GET: find a single user by id
 const getUserById = async (req, res) => {
 	try {
-		const userId = req.params.userId;
+		const userId = req.params.userId; // get user id
 
 		// find one user matching the id
 		const user = await User.findOne({ _id: userId })
@@ -38,7 +38,12 @@ const getUserById = async (req, res) => {
 				{ path: "friends", select: "-__v" }
 			]);
 
-		// send the json
+		// if user doesn't exist, send err message
+		if (!user) {
+			res.status(400).json({ message: "This user does not exist." });
+			return;
+		}
+		// otherwise, send the json
 		res.status(200).json(user);
 	} catch (error) {
 		console.log("\n---USER CTRL: GET USER BY ID ERR");
@@ -99,19 +104,19 @@ const updateUser = async (req, res) => {
 		const body = req.body; // get the body content
 
 		// run a check to see if specified user actually exists
-		const doesUserExist = await searchForUser({ _id: ObjectId(userId) });
+		const doesUserExist = await searchForUser({ _id: userId });
 
 		// if not, send an error message
 		if (!doesUserExist) {
 			res.status(400).json({
-				message: "Sorry, the user you are searching for does not exist."
+				message: "Sorry, the user you are searching for doesn't exist."
 			});
 			return;
 		}
 
 		// if user exists, update them
 		const updatedUser = await User.findOneAndUpdate(
-			{ _id: ObjectId(userId) }, // find user with specified id
+			{ _id: userId }, // find user with specified id
 			{ $set: body }, // update using the req.body content
 			{ runValidators: true, new: true } // run validators & save
 		);
@@ -130,7 +135,22 @@ const updateUser = async (req, res) => {
 // DELETE: delete a user
 const deleteUser = async (req, res) => {
 	try {
-		const userId = req.params.userId;
+		const userId = req.params.userId; // get id
+
+		// see if user exists first
+		const doesUserExist = await searchForUser({ _id: userId });
+
+		// if they don't, send err msg
+		if (!doesUserExist) {
+			res.status(400).json({ message: "Sorry, that user doesn't exist." });
+			return;
+		}
+
+		// if they do, delete the user
+		const deletedUser = await User.findOneAndDelete({ _id: userId });
+
+		// send success message
+		res.status(200).json({ message: "User deleted." });
 	} catch (error) {
 		console.log("\n---USER CTRL: DELETE USER ERR");
 		console.log(error);
