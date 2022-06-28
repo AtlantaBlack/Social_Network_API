@@ -17,7 +17,6 @@ const getAllUsers = async (req, res) => {
 			res.status(400).json({ message: "No users here..." });
 			return;
 		}
-
 		// if successful, send the user data
 		res.status(200).json(users);
 	} catch (error) {
@@ -65,7 +64,6 @@ const createUser = async (req, res) => {
       "email": "bob@email.com"
     }
     */
-
 		// deconstruct req.body
 		const { username, email } = req.body;
 
@@ -77,10 +75,8 @@ const createUser = async (req, res) => {
 				.json({ message: "Please include a valid username and email." });
 			return;
 		}
-
 		// check to see if the incoming email is already in use
 		const doesUserExist = await searchForUser({ email });
-
 		// if so, then send an error message
 		if (doesUserExist) {
 			res.status(400).json({
@@ -88,10 +84,8 @@ const createUser = async (req, res) => {
 			});
 			return;
 		}
-
 		// else create the new user
 		const newUser = await User.create({ username, email });
-
 		// if successful, send the response
 		res.status(200).json(newUser);
 	} catch (error) {
@@ -109,7 +103,6 @@ const updateUser = async (req, res) => {
 
 		// run a check to see if specified user actually exists
 		const doesUserExist = await searchForUser({ _id: userId });
-
 		// if not, send an error message
 		if (!doesUserExist) {
 			res.status(400).json({
@@ -117,14 +110,12 @@ const updateUser = async (req, res) => {
 			});
 			return;
 		}
-
 		// if user exists, update them
 		const updatedUser = await User.findOneAndUpdate(
 			{ _id: userId }, // find user with specified id
 			{ $set: body }, // update using the req.body content
 			{ runValidators: true, new: true } // run validators & save
 		);
-
 		// if successful, send json
 		res.status(200).json(updatedUser);
 	} catch (error) {
@@ -143,16 +134,13 @@ const deleteUser = async (req, res) => {
 
 		// see if user exists first
 		const doesUserExist = await searchForUser({ _id: userId });
-
 		// if they don't, send err msg
 		if (!doesUserExist) {
 			res.status(400).json({ message: "Sorry, that user doesn't exist." });
 			return;
 		}
-
 		// if they do, delete the user
 		const deletedUser = await User.findOneAndDelete({ _id: userId });
-
 		// then delete the user off all the friend lists the user belongs to
 		await User.updateMany(
 			// get all user ids from the deleted user's friend list
@@ -186,7 +174,7 @@ const addFriend = async (req, res) => {
 		const doesUserExist = await searchForUser({ _id: userId });
 		// check if friend exists
 		const doesFriendExist = await searchForUser({ _id: friendId });
-
+		// send error messages if users or friends don't exist
 		if (!doesUserExist) {
 			res.status(400).json({
 				message: "The user you're trying to add a friend to doesn't exist."
@@ -198,15 +186,13 @@ const addFriend = async (req, res) => {
 			});
 			return;
 		}
-
-		// disallow adding the user to their own friends list
+		// disallow user to add themselves to their own friend list
 		if (userId === friendId) {
 			res.status(400).json({
 				message: "Unfortunately, you can't add yourself as a friend."
 			});
 			return;
 		}
-
 		// update the user by adding the friend to their friends list (array)
 		const userWithNewFriend = await User.findOneAndUpdate(
 			{ _id: userId }, // grab user id
@@ -222,7 +208,6 @@ const addFriend = async (req, res) => {
 			{ $addToSet: { friends: userId } }, // add user to the friend's 'friends' field
 			{ runValidators: true, new: true }
 		);
-
 		// if successful, send data of user who added friend
 		res.status(200).json(userWithNewFriend);
 	} catch (error) {
@@ -235,14 +220,12 @@ const addFriend = async (req, res) => {
 // DELETE: delete a friend from the friends list
 const removeFriend = async (req, res) => {
 	try {
-		// get the ids
-		const userId = req.params.userId;
-		const friendId = req.params.friendId;
+		const userId = req.params.userId; // get user id
+		const friendId = req.params.friendId; // get friend id
 
 		// check if they exist
 		const doesUserExist = await searchForUser({ _id: userId });
 		const doesFriendExist = await searchForUser({ _id: friendId });
-
 		// send err messages if they don't
 		if (!doesUserExist) {
 			res.status(400).json({
@@ -255,7 +238,6 @@ const removeFriend = async (req, res) => {
 			});
 			return;
 		}
-
 		// if user tries to delete themselves as a friend, send error message
 		if (userId === friendId) {
 			res.status(400).json({
@@ -263,7 +245,6 @@ const removeFriend = async (req, res) => {
 			});
 			return;
 		}
-
 		// remove the friend thru updating the user's document
 		const userWithOneLessFriend = await User.findOneAndUpdate(
 			{ _id: userId },
@@ -279,7 +260,6 @@ const removeFriend = async (req, res) => {
 			{ $pull: { friends: userId } }, // pull from friends
 			{ runValidators: true, new: true }
 		);
-
 		// if successful, send data of user who is one friend fewer
 		res.status(200).json(userWithOneLessFriend);
 	} catch (error) {
