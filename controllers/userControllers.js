@@ -58,7 +58,7 @@ const getUserById = async (req, res) => {
 // POST: create a new user
 const createUser = async (req, res) => {
 	try {
-		/* req.body structure:
+		/* req.body structure for new user:
     {
       "username": "bob",
       "email": "bob@email.com"
