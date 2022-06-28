@@ -4,7 +4,8 @@ const router = require("express").Router();
 const {
 	getAllUsers,
 	getUserById,
-	createUser
+	createUser,
+  updateUser
 } = require("../../controllers/userControllers");
 
 // PATH: /api/users
@@ -14,6 +15,7 @@ router.route("/")
 
 // PATH: /api/users/:userId
 router.route("/:userId")
-  .get(getUserById);
+  .get(getUserById)
+  .put(updateUser);
 
 module.exports = router;

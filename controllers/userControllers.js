@@ -91,8 +91,39 @@ const createUser = async (req, res) => {
 	}
 };
 
+// PUT: update a single user
+const updateUser = async (req, res) => {
+	try {
+		const userId = req.params.userId; // get the id
+		const body = req.body; // get the body content
+
+		// run a check to see if specified user actually exists
+		const doesUserExist = await User.findOne({ _id: ObjectId(userId) });
+
+		// if not, send an error message
+		if (!doesUserExist) {
+			res.status(400).json({
+				message: "Sorry, the user you are searching for does not exist."
+			});
+			return;
+		}
+
+		const updatedUser = await User.findOneAndUpdate(
+			{ _id: ObjectId(userId) }, // find user with specified id
+			{ $set: body }, // update using the req.body content
+			{ runValidators: true, new: true } // run validators & save
+		);
+		res.status(200).json(updatedUser);
+	} catch (error) {
+		console.log("\n---USER CTRL: UPDATE USER ERR");
+		console.log(error);
+		res.status(500).json({ message: "Invalid ID!" });
+	}
+};
+
 module.exports = {
 	getAllUsers,
 	getUserById,
-	createUser
+	createUser,
+	updateUser
 };
