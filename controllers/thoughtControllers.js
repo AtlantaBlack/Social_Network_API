@@ -230,7 +230,7 @@ const removeReaction = async (req, res) => {
       "reactionId": "62bbbc4e47d66abf45dfba98"
     } */
 		const thoughtId = req.params.thoughtId; // get id
-		const reactionId = req.body; // get reaction id
+		const { reactionId } = req.body; // get reaction id
 
 		// if no reaction id given, send err message
 		if (!reactionId) {

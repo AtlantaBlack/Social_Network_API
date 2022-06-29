@@ -290,9 +290,9 @@ const removeFriend = async (req, res) => {
 		// if successful, send sad message
 		res
 			.status(200)
-			.json(
-				`${userWithOneLessFriend.username} is no longer friends with ${unfriended.username}.`
-			);
+			.json({
+				message: `${userWithOneLessFriend.username} is no longer friends with ${unfriended.username}.`
+			});
 	} catch (error) {
 		console.log("\n---USER CTRL: REMOVE FRIEND ERR");
 		console.log(error);
