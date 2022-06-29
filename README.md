@@ -100,4 +100,5 @@ This project is licensed under the [MIT License](./LICENSE.txt).
 ## Contact
 
 [Sushan Yue @ GitHub](https://github.com/AtlantaBlack)
+
 [Email me!](mailto:syue.dev@gmail.com)
