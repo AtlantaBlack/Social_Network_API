@@ -46,6 +46,12 @@ In order to use this application you will need to use a REST API client such as 
 
 **[Video walkthrough of Social Network API using Insomnia](https://drive.google.com/file/d/1kgHdAt6LKGK6whfe6tl07bP4oFDSdfty/view)**
 
+[Link to video showing package installation and server start of Social Network API](https://drive.google.com/file/d/1ZbuSBDjUfBXL9-2Zrwe2Tz3rPvivCPgN/view)
+
+GIF below: Package installation and starting the Social Network API server using VS Code's Integrated Terminal:
+
+![Screenshot of Social Network API: Starting the server in VS Code](assets/images/demo-start-snapi.gif?raw=true "Screenshot of Social Network API: Starting the server in VS Code")
+
 ## Screenshots
 
 Social Network API: View all users:
