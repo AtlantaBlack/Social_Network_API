@@ -124,6 +124,13 @@ const updateUser = async (req, res) => {
 			{ $set: body }, // update using the req.body content
 			{ runValidators: true, new: true } // run validators & save
 		);
+		// update their thoughts to include username change
+		await Thought.updateMany(
+			// get the thought ids that are in their thoughts array
+			{ _id: { $in: updatedUser.thoughts } },
+			// change the username over
+			{ $set: { username: updatedUser.username } }
+		);
 		// if successful, send json
 		res.status(200).json(updatedUser);
 	} catch (error) {
