@@ -226,13 +226,15 @@ const addFriend = async (req, res) => {
 			.select("-__v");
 
 		// update the friend with the user's id added to the friend's friend list
-		await User.findOneAndUpdate(
+		const newFriend = await User.findOneAndUpdate(
 			{ _id: friendId }, // get friend id
 			{ $addToSet: { friends: userId } }, // add user to the friend's 'friends' field
 			{ runValidators: true, new: true }
 		);
-		// if successful, send data of user who added friend
-		res.status(200).json(userWithNewFriend);
+		// if successful, send cute message
+		res.status(200).json({
+			message: `${userWithNewFriend.username} and ${newFriend.username} are now friends!`
+		});
 	} catch (error) {
 		console.log("\n---USER CTRL: ADD FRIEND ERR");
 		console.log(error);
@@ -280,13 +282,17 @@ const removeFriend = async (req, res) => {
 			.select("-__v");
 
 		// remove the user from the friend's friends list
-		await User.findOneAndUpdate(
+		const unfriended = await User.findOneAndUpdate(
 			{ _id: friendId },
 			{ $pull: { friends: userId } }, // pull from friends
 			{ runValidators: true, new: true }
 		);
-		// if successful, send data of user who is one friend fewer
-		res.status(200).json(userWithOneLessFriend);
+		// if successful, send sad message
+		res
+			.status(200)
+			.json(
+				`${userWithOneLessFriend.username} is no longer friends with ${unfriended.username}.`
+			);
 	} catch (error) {
 		console.log("\n---USER CTRL: REMOVE FRIEND ERR");
 		console.log(error);
