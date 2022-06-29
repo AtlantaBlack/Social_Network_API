@@ -166,10 +166,108 @@ const deleteThought = async (req, res) => {
 	}
 };
 
+// ==== THOUGHTS: reactions ====
+
+// POST: add a reaction
+const addReaction = async (req, res) => {
+	try {
+		/* req.body structure for new reaction:
+    {
+      "reactionBody": "omg omg omg that's amazing",
+      "username": "bob"
+    }
+    */
+		const thoughtId = req.params.thoughtId; // get thought id
+		// deconstruct req.body
+		const { reactionBody, username } = req.body;
+
+		if (!reactionBody || !username) {
+			res
+				.status(400)
+				.json({ message: "Please include username and reaction content" });
+			return;
+		}
+
+		// make sure thought exists
+		const doesThoughtExist = await searchForThought({ _id: thoughtId });
+		// if no thought found, send err msg
+		if (!doesThoughtExist) {
+			res.status(400).json({
+				message:
+					"Reaction failed: Could not find thought. Make sure the thought ID is correct."
+			});
+			return;
+		}
+		// check that the user exists
+		const doesUserExist = await searchForUser({ username });
+		// send err message if not
+		if (!doesUserExist) {
+			res.status(400).json({
+				message: "Could not find user. Make sure the username is correct."
+			});
+			return;
+		}
+		// if thought & user exists, create the reaction by finding the thought and updating it
+		const newReaction = await Thought.findOneAndUpdate(
+			{ _id: thoughtId },
+			{ $addToSet: { reactions: { reactionBody, username } } },
+			{ runVaidators: true, new: true }
+		);
+		// send success msg
+		res.status(200).json(newReaction);
+	} catch (error) {
+		console.log("\n---THOUGHTS CTRL: ADD REACTION ERR");
+		console.log(error);
+		res.status(500).json({ message: error.message });
+	}
+};
+
+// DELETE: remove a reaction
+const removeReaction = async (req, res) => {
+	try {
+		const thoughtId = req.params.thoughtId; // get id
+		const { reactionId } = req.body; // get reaction id
+
+		// if no reaction id given, send err message
+		if (!reactionId) {
+			res.status(400).json({
+				message:
+					"Could not find the reaction. Please check the reaction ID is correct."
+			});
+			return;
+		}
+		// then make sure thought exists first
+		const doesThoughtExist = await searchForThought({ _id: thoughtId });
+		// if it doesn't, send err msg
+		if (!doesThoughtExist) {
+			res.status(400).json({
+				message:
+					"Remove failed: Could not find thought. Please check the thought ID is correct."
+			});
+			return;
+		}
+		// if thought does exist, go ahead and remove reaction by updating the thought
+		await Thought.findOneAndUpdate(
+			{ _id: thoughtId },
+			// pull reaction corresponding to the given reaction id
+			{ $pull: { reactions: { reactionId: reactionId } } },
+			{ runValidators: true, new: true }
+		);
+		// send success msg
+		res.status(200).json({ message: "Reaction removed!" });
+	} catch (error) {
+		console.log("\n---THOUGHTS CTRL: REMOVE REACTION ERR");
+		console.log(error);
+		res.status(500).json({ message: error.message });
+	}
+};
+
 module.exports = {
 	getAllThoughts,
 	getThoughtById,
 	addThought,
 	updateThought,
-	deleteThought
+	deleteThought,
+	addReaction,
+	removeReaction
 };

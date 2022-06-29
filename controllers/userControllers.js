@@ -75,10 +75,19 @@ const createUser = async (req, res) => {
 				.json({ message: "Please include a valid username and email." });
 			return;
 		}
-		// check to see if the incoming email is already in use
-		const doesUserExist = await searchForUser({ email });
+		// check to see if the incoming username is already in use
+		const doesUsernameExist = await searchForUser({ username });
 		// if so, then send an error message
-		if (doesUserExist) {
+		if (doesUsernameExist) {
+			res.status(400).json({
+				message: "Sorry, that username is already in use. Please try again."
+			});
+			return;
+		}
+		// check to see if the incoming email is already in use
+		const doesEmailExist = await searchForUser({ email });
+		// if so, then send an error message
+		if (doesEmailExist) {
 			res.status(400).json({
 				message: "Sorry, that email is already in use. Please try again."
 			});
