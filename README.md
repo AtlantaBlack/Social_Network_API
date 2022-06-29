@@ -40,7 +40,13 @@ npm i
 
 ## Usage
 
-In order to use this application you will need to use a REST API client such as Insomnia or Postman. You are able to find, create, update, and delete users, thoughts, and/or reactions.
+To start the server, run the following command in the root directory of the application folder:
+
+```
+npm start
+```
+
+Open your REST API client of choice, such as Insomnia or Postman, to continue using the application. On a free port, you will be able to find, create, update, and delete users, thoughts, and/or reactions.
 
 ## Demo
 
