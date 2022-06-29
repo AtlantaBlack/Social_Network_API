@@ -1,6 +1,4 @@
-const { ObjectId } = require("mongoose");
 const { User, Thought } = require("../models");
-const localDateFormatter = require("../utils/dateFormatter");
 const { searchForUser, searchForThought } = require("../utils/search");
 
 // ==== THOUGHTS: general ====
@@ -79,7 +77,7 @@ const addThought = async (req, res) => {
 		if (!doesUserExist) {
 			res.status(400).json({
 				message:
-					"We couldn't find the user! Please check the user ID matches the username."
+					"Add thought failed: User could not be found. Please check the user ID matches the username."
 			});
 			return;
 		}
@@ -92,7 +90,7 @@ const addThought = async (req, res) => {
 			{ runValidators: true, new: true } // make sure updated document gets returned
 		);
 		// if successful, send message
-		res.status(200).json({ message: "Thought added!" });
+		res.status(200).json(newThought);
 	} catch (error) {
 		console.log("\n---THOUGHTS CTRL: POST NEW THOUGHT ERR");
 		console.log(error);
@@ -112,7 +110,7 @@ const updateThought = async (req, res) => {
 		if (!doesThoughtExist) {
 			res.status(400).json({
 				message:
-					"Update failed: Could not find thought. Please check the thought ID is correct."
+					"Update thought failed: Thought could not be found. Please check the thought ID is correct."
 			});
 			return;
 		}
@@ -127,7 +125,8 @@ const updateThought = async (req, res) => {
 		// if thoughtText isn't provided, say no changes were made
 		if (!thoughtText) {
 			res.status(400).json({
-				message: "Update cancelled: No changes were made to thought content."
+				message:
+					"Update thought cancelled: No changes were made to thought content."
 			});
 			return;
 		}
@@ -151,14 +150,14 @@ const deleteThought = async (req, res) => {
 		if (!doesThoughtExist) {
 			res.status(400).json({
 				message:
-					"Delete failed: Could not find thought. Make sure the thought ID is correct."
+					"Remove thought failed: Thought could not be found. Make sure the thought ID is correct."
 			});
 			return;
 		}
 		// otherwise go and delete the thought
 		await Thought.findOneAndDelete({ _id: thoughtId });
 		// send success msg
-		res.status(200).json({ message: "Thought deleted!" });
+		res.status(200).json({ message: "Thought deleted." });
 	} catch (error) {
 		console.log("\n---THOUGHTS CTRL: DELETE THOUGHT ERR");
 		console.log(error);
@@ -182,9 +181,9 @@ const addReaction = async (req, res) => {
 		const { reactionBody, username } = req.body;
 
 		if (!reactionBody || !username) {
-			res
-				.status(400)
-				.json({ message: "Please include username and reaction content" });
+			res.status(400).json({
+				message: "Please include reaction content and a valid username."
+			});
 			return;
 		}
 
@@ -194,7 +193,7 @@ const addReaction = async (req, res) => {
 		if (!doesThoughtExist) {
 			res.status(400).json({
 				message:
-					"Reaction failed: Could not find thought. Make sure the thought ID is correct."
+					"Add reaction failed: Thought could not be found. Make sure the thought ID is correct."
 			});
 			return;
 		}
@@ -203,7 +202,8 @@ const addReaction = async (req, res) => {
 		// send err message if not
 		if (!doesUserExist) {
 			res.status(400).json({
-				message: "Could not find user. Make sure the username is correct."
+				message:
+					"Add reaction failed: User could not be found. Make sure the username is correct."
 			});
 			return;
 		}
@@ -225,14 +225,18 @@ const addReaction = async (req, res) => {
 // DELETE: remove a reaction
 const removeReaction = async (req, res) => {
 	try {
+		/* req.body structure for removing reaction:
+    {
+      "reactionId": "62bbbc4e47d66abf45dfba98"
+    } */
 		const thoughtId = req.params.thoughtId; // get id
-		const { reactionId } = req.body; // get reaction id
+		const reactionId = req.body; // get reaction id
 
 		// if no reaction id given, send err message
 		if (!reactionId) {
 			res.status(400).json({
 				message:
-					"Could not find the reaction. Please check the reaction ID is correct."
+					"Remove reaction failed: Reaction could not be found. Check the reaction ID is correct."
 			});
 			return;
 		}
@@ -242,7 +246,7 @@ const removeReaction = async (req, res) => {
 		if (!doesThoughtExist) {
 			res.status(400).json({
 				message:
-					"Remove failed: Could not find thought. Please check the thought ID is correct."
+					"Remove reaction failed: Thought could not be found. Check the thought ID is correct."
 			});
 			return;
 		}
@@ -254,7 +258,7 @@ const removeReaction = async (req, res) => {
 			{ runValidators: true, new: true }
 		);
 		// send success msg
-		res.status(200).json({ message: "Reaction removed!" });
+		res.status(200).json({ message: "Reaction removed." });
 	} catch (error) {
 		console.log("\n---THOUGHTS CTRL: REMOVE REACTION ERR");
 		console.log(error);

@@ -1,6 +1,5 @@
-const { ObjectId } = require("mongoose").Types;
 const { User, Thought } = require("../models");
-const { searchForUser, searchForThought } = require("../utils/search");
+const { searchForUser } = require("../utils/search");
 
 // ==== USER: general ====
 
@@ -43,7 +42,7 @@ const getUserById = async (req, res) => {
 
 		// if user doesn't exist, send err message
 		if (!user) {
-			res.status(400).json({ message: "This user does not exist." });
+			res.status(400).json({ message: "User could not be found." });
 			return;
 		}
 		// otherwise, send the json
@@ -80,7 +79,7 @@ const createUser = async (req, res) => {
 		// if so, then send an error message
 		if (doesUsernameExist) {
 			res.status(400).json({
-				message: "Sorry, that username is already in use. Please try again."
+				message: `Sorry, the username '${username}' is already in use. Please try again.`
 			});
 			return;
 		}
@@ -89,7 +88,7 @@ const createUser = async (req, res) => {
 		// if so, then send an error message
 		if (doesEmailExist) {
 			res.status(400).json({
-				message: "Sorry, that email is already in use. Please try again."
+				message: `Sorry, the email '${email}' is already in use. Please try again.`
 			});
 			return;
 		}
@@ -115,7 +114,7 @@ const updateUser = async (req, res) => {
 		// if not, send an error message
 		if (!doesUserExist) {
 			res.status(400).json({
-				message: "Sorry, the user you are searching for doesn't exist."
+				message: "Update user failed: User could not be found."
 			});
 			return;
 		}
@@ -143,7 +142,9 @@ const deleteUser = async (req, res) => {
 		const doesUserExist = await searchForUser({ _id: userId });
 		// if they don't, send err msg
 		if (!doesUserExist) {
-			res.status(400).json({ message: "Sorry, that user doesn't exist." });
+			res
+				.status(400)
+				.json({ message: "Delete user failed: User could not be found." });
 			return;
 		}
 		// if they do, delete the user
@@ -163,7 +164,9 @@ const deleteUser = async (req, res) => {
 			{ $pull: { thoughts: deletedUser.username } }
 		);
 		// send success message
-		res.status(200).json({ message: "User deleted." });
+		res
+			.status(200)
+			.json({ message: `User deleted. Bye, ${deletedUser.username}!` });
 	} catch (error) {
 		console.log("\n---USER CTRL: DELETE USER ERR");
 		console.log(error);
@@ -186,19 +189,22 @@ const addFriend = async (req, res) => {
 		// send error messages if users or friends don't exist
 		if (!doesUserExist) {
 			res.status(400).json({
-				message: "The user you're trying to add a friend to doesn't exist."
+				message:
+					"Add friend failed: The user you are trying to add a friend to could not be found."
 			});
 			return;
 		} else if (!doesFriendExist) {
 			res.status(400).json({
-				message: "The user being added as a friend doesn't exist."
+				message:
+					"Add friend failed: The user who is being added as a friend could not be found."
 			});
 			return;
 		}
 		// disallow user to add themselves to their own friend list
 		if (userId === friendId) {
 			res.status(400).json({
-				message: "Unfortunately, you can't add yourself as a friend."
+				message:
+					"Add friend failed: Unfortunately, you can't add yourself as a friend."
 			});
 			return;
 		}
@@ -208,7 +214,8 @@ const addFriend = async (req, res) => {
 			{ $addToSet: { friends: friendId } }, // add friend to 'friends' field of the user
 			{ runValidators: true, new: true }
 		)
-			.populate({ path: "friends", select: "-__v" }) // show the friends
+			// show the friends
+			.populate({ path: "friends", select: "-__v" })
 			.select("-__v");
 
 		// update the friend with the user's id added to the friend's friend list
@@ -238,19 +245,21 @@ const removeFriend = async (req, res) => {
 		// send err messages if they don't
 		if (!doesUserExist) {
 			res.status(400).json({
-				message: "The user you're trying to add a friend to doesn't exist."
+				message:
+					"Remove friend failed: The user you are trying to add a friend to could not be found."
 			});
 			return;
 		} else if (!doesFriendExist) {
 			res.status(400).json({
-				message: "The user being added as a friend doesn't exist."
+				message:
+					"Remove friend failed: The user who is being added as a friend could not be found."
 			});
 			return;
 		}
 		// if user tries to delete themselves as a friend, send error message
 		if (userId === friendId) {
 			res.status(400).json({
-				message: "Please check the user IDs are correct."
+				message: "Remove friend failed: Please check the user IDs are correct."
 			});
 			return;
 		}
