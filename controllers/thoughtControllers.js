@@ -136,9 +136,7 @@ const updateThought = async (req, res) => {
 	} catch (error) {
 		console.log("\n---THOUGHTS CTRL: UPDATE THOUGHT ERR");
 		console.log(error);
-		res
-			.status(500)
-			.json({ message: "Something went wrong! (Invalid thought ID)" });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -164,9 +162,7 @@ const deleteThought = async (req, res) => {
 	} catch (error) {
 		console.log("\n---THOUGHTS CTRL: DELETE THOUGHT ERR");
 		console.log(error);
-		res
-			.status(500)
-			.json({ message: "Something went wrong! (Invalid thought ID)" });
+		res.status(500).json({ message: error.message });
 	}
 };
 
