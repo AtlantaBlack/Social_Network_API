@@ -118,13 +118,33 @@ const updateUser = async (req, res) => {
 			});
 			return;
 		}
-		// if user exists, update them
+		// check to see if the proposed new username is already in use
+		const doesUsernameExist = await searchForUser({
+			username: req.body.username
+		});
+		// if so, then send an error message
+		if (doesUsernameExist) {
+			res.status(400).json({
+				message: `Sorry, the username '${req.body.username}' is already in use. Please try again.`
+			});
+			return;
+		}
+		// check to see if the proposed new email is already in use
+		const doesEmailExist = await searchForUser({ email: req.body.email });
+		// if so, then send an error message
+		if (doesEmailExist) {
+			res.status(400).json({
+				message: `Sorry, the email '${req.body.email}' is already in use. Please try again.`
+			});
+			return;
+		}
+		// if user exists and passes above validation checks, update the user
 		const updatedUser = await User.findOneAndUpdate(
 			{ _id: userId }, // find user with specified id
 			{ $set: body }, // update using the req.body content
 			{ runValidators: true, new: true } // run validators & save
 		);
-		// update their thoughts to include username change
+		// then update their thoughts to include username change
 		await Thought.updateMany(
 			// get the thought ids that are in their thoughts array
 			{ _id: { $in: updatedUser.thoughts } },
@@ -288,11 +308,9 @@ const removeFriend = async (req, res) => {
 			{ runValidators: true, new: true }
 		);
 		// if successful, send sad message
-		res
-			.status(200)
-			.json({
-				message: `${userWithOneLessFriend.username} is no longer friends with ${unfriended.username}.`
-			});
+		res.status(200).json({
+			message: `${userWithOneLessFriend.username} is no longer friends with ${unfriended.username}.`
+		});
 	} catch (error) {
 		console.log("\n---USER CTRL: REMOVE FRIEND ERR");
 		console.log(error);
