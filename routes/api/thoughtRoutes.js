@@ -4,7 +4,8 @@ const router = require("express").Router();
 const {
   getAllThoughts,
   getThoughtById,
-  addThought
+  addThought,
+  updateThought
 } = require('../../controllers/thoughtControllers');
 
 // PATH: /api/thoughts
@@ -14,7 +15,8 @@ router.route("/")
 
 // PATH: /api/thoughts/:thoughtId
 router.route('/:thoughtId')
-  .get(getThoughtById);
+  .get(getThoughtById)
+  .put(updateThought);
 
 // PATH: /api/thoughts/:thoughtId/reactions
 
