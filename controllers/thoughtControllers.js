@@ -180,13 +180,13 @@ const addReaction = async (req, res) => {
 		// deconstruct req.body
 		const { reactionBody, username } = req.body;
 
+		// if required fields aren't present, send err msg
 		if (!reactionBody || !username) {
 			res.status(400).json({
 				message: "Please include reaction content and a valid username."
 			});
 			return;
 		}
-
 		// make sure thought exists
 		const doesThoughtExist = await searchForThought({ _id: thoughtId });
 		// if no thought found, send err msg

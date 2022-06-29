@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const apiRoutes = require("./api");
 
-// path: /api
+// PATH: /api
 router.use("/api", apiRoutes);
 
 // wrong route
