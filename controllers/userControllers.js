@@ -146,9 +146,13 @@ const deleteUser = async (req, res) => {
 			// pull the deleted user's id
 			{ $pull: { friends: userId } }
 		);
-
-		// *** DELETE THOUGHTS ****
-
+		// then delete thoughts associated with deleted user
+		await Thought.deleteMany(
+			// get thought ids from the deleted user's thoughts array
+			{ _id: { $in: deletedUser.thoughts } },
+			// pull thoughts matching the deleted user's username
+			{ $pull: { thoughts: deletedUser.username } }
+		);
 		// send success message
 		res.status(200).json({ message: "User deleted." });
 	} catch (error) {

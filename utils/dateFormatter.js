@@ -11,6 +11,7 @@ const localDateFormatter = (createdAt) => {
 
 	// format time
 	// reference: https://stackoverflow.com/a/64895819
+	// by OnlyZero
 	let hours = createdAt.getHours();
 	let minutes = createdAt.getMinutes();
 	const ampm = hours >= 12 ? "pm" : "am";
