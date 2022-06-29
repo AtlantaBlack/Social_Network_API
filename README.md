@@ -34,7 +34,9 @@ Social Network API is a Back End application that will require users to have fir
 
 After cloning or downloading Social Network API, open the folder using Terminal (or CLI of your choice) and install the necessary packages by running this command in the root directory:
 
-`npm i`
+```
+npm i
+```
 
 ## Usage
 
