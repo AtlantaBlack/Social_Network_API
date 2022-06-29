@@ -1,6 +1,6 @@
 const { ObjectId } = require("mongoose").Types;
 const { User, Thought } = require("../models");
-const searchForUser = require("../utils/userSearch");
+const { searchForUser, searchForThought } = require("../utils/search");
 
 // ==== USER: general ====
 
@@ -22,7 +22,7 @@ const getAllUsers = async (req, res) => {
 	} catch (error) {
 		console.log("\n---USER CTRL: GET USERS ERR");
 		console.log(error);
-		res.status(500).json({ message: "Something went wrong!" });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -51,7 +51,7 @@ const getUserById = async (req, res) => {
 	} catch (error) {
 		console.log("\n---USER CTRL: GET USER BY ID ERR");
 		console.log(error);
-		res.status(500).json({ message: "Something went wrong!" });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -91,7 +91,7 @@ const createUser = async (req, res) => {
 	} catch (error) {
 		console.log("\n---USER CTRL: CREATE USER ERR");
 		console.log(error);
-		res.status(500).json({ message: "Something went wrong!" });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -121,9 +121,7 @@ const updateUser = async (req, res) => {
 	} catch (error) {
 		console.log("\n---USER CTRL: UPDATE USER ERR");
 		console.log(error);
-		res
-			.status(500)
-			.json({ message: "Something went wrong! (Invalid user ID)" });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -156,9 +154,7 @@ const deleteUser = async (req, res) => {
 	} catch (error) {
 		console.log("\n---USER CTRL: DELETE USER ERR");
 		console.log(error);
-		res
-			.status(500)
-			.json({ message: "Something went wrong! (Invalid user ID)" });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -213,7 +209,7 @@ const addFriend = async (req, res) => {
 	} catch (error) {
 		console.log("\n---USER CTRL: ADD FRIEND ERR");
 		console.log(error);
-		res.status(500).json({ message: "Something went wrong!" });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -265,7 +261,7 @@ const removeFriend = async (req, res) => {
 	} catch (error) {
 		console.log("\n---USER CTRL: REMOVE FRIEND ERR");
 		console.log(error);
-		res.status(500).json({ message: "Something went wrong!" });
+		res.status(500).json({ message: error.message });
 	}
 };
 

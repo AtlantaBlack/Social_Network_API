@@ -1,7 +1,7 @@
 const { ObjectId } = require("mongoose");
 const { User, Thought } = require("../models");
 const localDateFormatter = require("../utils/dateFormatter");
-const searchForUser = require("../utils/userSearch");
+const { searchForUser, searchForThought } = require("../utils/search");
 
 // ==== THOUGHTS: general ====
 
@@ -23,7 +23,7 @@ const getAllThoughts = async (req, res) => {
 	} catch (error) {
 		console.log("\n---THOUGHTS CTRL: GET THOUGHTS ERR");
 		console.log(error);
-		res.status(500).json({ message: "Something went wrong!" });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -31,6 +31,7 @@ const getAllThoughts = async (req, res) => {
 const getThoughtById = async (req, res) => {
 	try {
 		const thoughtId = req.params.thoughtId; // get thought id
+
 		// find the thought
 		const thought = await Thought.findOne({ _id: thoughtId })
 			// don't show __v field
@@ -47,7 +48,7 @@ const getThoughtById = async (req, res) => {
 	} catch (error) {
 		console.log("\n---THOUGHTS CTRL: GET THOUGHT BY ID ERR");
 		console.log(error);
-		res.status(500).json({ message: "Something went wrong!" });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -63,6 +64,7 @@ const addThought = async (req, res) => {
     */
 		// deconstruct req.body
 		const { thoughtText, username, userId } = req.body;
+
 		// make sure all fields are present in the body
 		if (!thoughtText || !username || !userId) {
 			res.status(400).json({
@@ -94,7 +96,7 @@ const addThought = async (req, res) => {
 	} catch (error) {
 		console.log("\n---THOUGHTS CTRL: POST NEW THOUGHT ERR");
 		console.log(error);
-		res.status(500).json({ message: "Something went wrong!" });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -103,6 +105,17 @@ const updateThought = async (req, res) => {
 	try {
 		const thoughtId = req.params.thoughtId; // get id
 		const { thoughtText } = req.body; // get body content
+
+		// search for existing thought
+		const doesThoughtExist = await searchForThought({ _id: thoughtId });
+		// if no thought found, send err msg
+		if (!doesThoughtExist) {
+			res.status(400).json({
+				message:
+					"Update failed: Could not find thought. Please check the thought ID is correct."
+			});
+			return;
+		}
 		// find and update the thought
 		const updatedThought = await Thought.findOneAndUpdate(
 			{ _id: thoughtId },
@@ -118,14 +131,6 @@ const updateThought = async (req, res) => {
 			});
 			return;
 		}
-		// if no thought found, send err msg
-		if (!updatedThought) {
-			res.status(400).json({
-				message:
-					"Update failed: Could not find thought. Please check the thought ID is correct."
-			});
-			return;
-		}
 		// if successful, send the updated thought
 		res.status(200).json(updatedThought);
 	} catch (error) {
@@ -137,9 +142,38 @@ const updateThought = async (req, res) => {
 	}
 };
 
+// DELETE: delete a thought
+const deleteThought = async (req, res) => {
+	try {
+		const thoughtId = req.params.thoughtId; // get id
+
+		// see if the thought exists
+		const doesThoughtExist = await searchForThought({ _id: thoughtId });
+		// if no thought found, send err msg
+		if (!doesThoughtExist) {
+			res.status(400).json({
+				message:
+					"Delete failed: Could not find thought. Make sure the thought ID is correct."
+			});
+			return;
+		}
+		// otherwise go and delete the thought
+		await Thought.findOneAndDelete({ _id: thoughtId });
+		// send success msg
+		res.status(200).json({ message: "Thought deleted!" });
+	} catch (error) {
+		console.log("\n---THOUGHTS CTRL: DELETE THOUGHT ERR");
+		console.log(error);
+		res
+			.status(500)
+			.json({ message: "Something went wrong! (Invalid thought ID)" });
+	}
+};
+
 module.exports = {
 	getAllThoughts,
 	getThoughtById,
+	addThought,
 	updateThought,
-	addThought
+	deleteThought
 };
